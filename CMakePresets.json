@@ -15,6 +15,21 @@
         "VCPKG_ROOT": "/opt/vcpkg",
         "VCPKG_FORCE_SYSTEM_BINARIES": "1"
       }
+    },
+    {
+      "name": "musl-arm64",
+      "displayName": "Alpine musl arm64, static",
+      "generator": "Ninja",
+      "binaryDir": "/build",
+      "toolchainFile": "/opt/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "VCPKG_TARGET_TRIPLET": "arm64-linux"
+      },
+      "environment": {
+        "VCPKG_ROOT": "/opt/vcpkg",
+        "VCPKG_FORCE_SYSTEM_BINARIES": "1"
+      }
     }
   ]
 }

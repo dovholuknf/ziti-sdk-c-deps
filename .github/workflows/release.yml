@@ -1,23 +1,45 @@
 name: release
 on:
+  push:
+    paths: ['vcpkg.json', 'CMakePresets.json', 'CMakeLists.txt', 'scripts/**', 'cmake/**', '.github/workflows/release.yml']
   workflow_dispatch:
     inputs:
       tag:
-        description: release tag, for example sdk-1.20.1-1
-        required: true
+        description: release tag, for example sdk-1.20.1-1. Leave empty to build without publishing.
+        required: false
 permissions:
   contents: write
 jobs:
-  bundle:
-    runs-on: ubuntu-latest
+  linux:
+    strategy:
+      matrix:
+        include:
+          - {arch: x64, runner: ubuntu-latest}
+          - {arch: arm64, runner: ubuntu-24.04-arm}
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
         with:
           path: .cache
-          key: vcpkg-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'scripts/build.sh') }}
-          restore-keys: vcpkg-
-      - run: scripts/docker-build.sh out .cache
+          key: vcpkg-linux-${{ matrix.arch }}-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'scripts/build.sh') }}
+          restore-keys: vcpkg-linux-${{ matrix.arch }}-
+      - run: scripts/docker-build.sh out .cache ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle-linux-${{ matrix.arch }}
+          path: out/*.zip
+  publish:
+    if: inputs.tag != ''
+    needs: [linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bundle-*
+          path: out
+          merge-multiple: true
       - run: scripts/publish.sh "${{ inputs.tag }}" out
         env:
           GH_TOKEN: ${{ github.token }}
