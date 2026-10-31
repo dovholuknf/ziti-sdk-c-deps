@@ -1,15 +1,16 @@
 #!/bin/sh
 # Assembles the prebuilt bundle from a finished build tree.
-# Usage: scripts/package.sh <build dir> <output dir> [x64|arm64]
+# Usage: scripts/package.sh <build dir> <output dir> [x64|arm64] [linux|macos]
 set -eu
 
 build="$1"
 out="$2"
 arch="${3:-x64}"
-case "$arch" in x64) triplet=x64-linux ;; arm64) triplet=arm64-linux ;; esac
+os="${4:-linux}"
+case "$os" in linux) triplet="$arch-linux"; suffix=musl ;; macos) triplet="$arch-osx"; suffix=macos ;; esac
 repo="$(cd "$(dirname "$0")/.." && pwd)"
 sdk_version="$(git -C "$build/_deps/ziti-sdk-c-src" describe --tags --always)"
-name="ziti-deps-${sdk_version}-${arch}-musl"
+name="ziti-deps-${sdk_version}-${arch}-${suffix}"
 stage="$(mktemp -d)/$name"
 
 mkdir -p "$stage/include" "$stage/lib/cmake/ziti-deps" "$out"
