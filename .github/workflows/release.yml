@@ -1,0 +1,23 @@
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: release tag, for example sdk-1.20.1-1
+        required: true
+permissions:
+  contents: write
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: vcpkg-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'scripts/build.sh') }}
+          restore-keys: vcpkg-
+      - run: scripts/docker-build.sh out .cache
+      - run: scripts/publish.sh "${{ inputs.tag }}" out
+        env:
+          GH_TOKEN: ${{ github.token }}
