@@ -5,4 +5,4 @@ set -eu
 
 tag="$1"
 dir="$2"
-gh release create "$tag" "$dir"/*.zip --title "$tag" --notes "Static musl x64 libziti and dependencies."
+gh release create "$tag" "$dir"/*.zip --title "$tag" --notes "Static libziti and dependencies: musl (x64, arm64), macOS (arm64, x64), Windows (x64)."

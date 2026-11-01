@@ -1,8 +1,8 @@
 # ziti-sdk-c-deps
 
-Prebuilt static musl x64 `libziti` and everything it links (tlsuv, libuv, openssl, libsodium, json-c, protobuf-c,
-llhttp, zlib, stc), published as a zip per ziti-sdk-c version. Link it into a small static binary without building
-the SDK.
+Prebuilt static `libziti` and everything it links (tlsuv, libuv, openssl, libsodium, json-c, protobuf-c, llhttp, zlib,
+stc), published as a zip per ziti-sdk-c version and platform: musl (x64, arm64), macOS (arm64, x64) and Windows (x64).
+Link it into a small static binary without building the SDK.
 
 ## Use it
 
@@ -28,6 +28,9 @@ Build the consumer on musl (Alpine). The libraries are musl objects, so they do 
 scripts/docker-build.sh out        # needs Docker; writes out/ziti-deps-<sdk version>-x64-musl.zip
 scripts/publish.sh sdk-1.20.1-1 out
 ```
+
+macOS: `scripts/build-macos.sh out work [arm64|x64]`. Windows: `scripts/build-windows.ps1 -Out out -Work work`.
+Zips are named `ziti-deps-<sdk version>-<arch>-<musl|macos|windows>.zip`.
 
 Or run the `release` workflow, which calls the same scripts.
 

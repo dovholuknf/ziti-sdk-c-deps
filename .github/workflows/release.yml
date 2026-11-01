@@ -29,9 +29,43 @@ jobs:
         with:
           name: bundle-linux-${{ matrix.arch }}
           path: out/*.zip
+  macos:
+    strategy:
+      matrix:
+        include:
+          - {arch: arm64, runner: macos-14}
+          - {arch: x64, runner: macos-13}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: vcpkg-macos-${{ matrix.arch }}-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'scripts/build-macos.sh', 'scripts/package.sh') }}
+          restore-keys: vcpkg-macos-${{ matrix.arch }}-
+      - run: scripts/build-macos.sh out .cache ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle-macos-${{ matrix.arch }}
+          path: out/*.zip
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: vcpkg-windows-x64-${{ hashFiles('vcpkg.json', 'CMakePresets.json', 'scripts/build-windows.ps1', 'scripts/package-windows.ps1') }}
+          restore-keys: vcpkg-windows-x64-
+      - run: scripts/build-windows.ps1 -Out out -Work .cache -Arch x64
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle-windows-x64
+          path: out/*.zip
   publish:
     if: inputs.tag != ''
-    needs: [linux]
+    needs: [linux, macos, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
