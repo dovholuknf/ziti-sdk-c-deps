@@ -15,6 +15,10 @@ export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 case "$arch" in x64) osx_arch=x86_64 ;; arm64) osx_arch=arm64 ;; esac
 mkdir -p "$work" "$out"
 
+for tool in ninja pkgconf autoconf automake libtool; do
+    brew list --formula "$tool" >/dev/null 2>&1 || brew install "$tool"
+done
+
 if [ ! -d "$vcpkg" ]; then
     git clone https://github.com/microsoft/vcpkg "$vcpkg"
     git -C "$vcpkg" reset --hard "$vcpkg_commit"
